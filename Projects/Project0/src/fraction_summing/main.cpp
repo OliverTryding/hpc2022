@@ -76,6 +76,7 @@ static void test_array_functions(int n)
     printf("Sum of the fractions using function 9: %lf\n",sum_fraction_array_approx(frac_array,n));
 
     //TODO: find n for which sum function breaks. Explain what is happening.
+    // It breaks at n=1290 because the integers overflow.
 }
 
 static void test_toolbox(int argc, char* argv[])
