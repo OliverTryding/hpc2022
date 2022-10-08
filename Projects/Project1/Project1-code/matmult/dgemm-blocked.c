@@ -22,16 +22,34 @@ const char* dgemm_desc = "Naive, three-loop dgemm.";
 void square_dgemm (int n, double* A, double* B, double* C)
 {
   // TODO: Implement the blocking optimization
+  int s = 22;
+  int blocks = n / s;
 
-  /* For each row i of A */
-  for (int i = 0; i < n; ++i)
-    /* For each column j of B */
-    for (int j = 0; j < n; ++j) 
+  for (int u = 0; u <= blocks; u++)
+  {
+    for (int v = 0; v <= blocks; v++)
     {
-      /* Compute C(i,j) */
-      double cij = C[i+j*n];
-      for( int k = 0; k < n; k++ )
-	cij += A[i+k*n] * B[k+j*n];
-      C[i+j*n] = cij;
+      for (int w = 0; w <= blocks; w++)
+      {
+        int end_u = (u+1) * s;
+        /* For each row i of A */
+        for (int i = u * s; i<end_u && i<n; ++i)
+        {
+          int end_v = (v+1) * s;
+          /* For each column j of B */
+          for (int j = v * s; j<end_v && j<n; ++j)
+          {
+            int end_w = (w+1) * s;
+            /* Compute C(i,j) */
+            double cij = C[i+j*n];
+            for( int k = w * s; k<end_w && k<n; k++ )
+            {
+              cij += A[i+k*n] * B[k+j*n];
+            }
+            C[i+j*n] = cij;
+          }
+        }
+      }
     }
+  }
 }
