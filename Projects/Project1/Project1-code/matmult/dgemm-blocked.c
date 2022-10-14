@@ -15,7 +15,7 @@ LDLIBS = -lrt -Wl,--start-group $(MKLROOT)/lib/intel64/libmkl_intel_lp64.a $(MKL
 
 #include <stdlib.h>
 
-const char* dgemm_desc = "Naive, three-loop dgemm.";
+const char* dgemm_desc = "Blocked, three-loop dgemm.";
 
 double* transpose(double* A, int n)
 {
@@ -38,11 +38,22 @@ double* transpose(double* A, int n)
 void square_dgemm (int n, double* A, double* B, double* C)
 {
   // Transposing A for better spacial locality
-  double* AT = transpose(A,n);
+  //double* AT = transpose(A,n);
+
+  // The code seems to be slightly faster if the transposition is moved inside.
+  // Allocating a new array where A is going to be transposed
+  double* AT = (double*) malloc(n*n*sizeof(double));
+  for (int i = 0; i < n; i++) 
+  {
+    for (int j = 0; j < n; j++) 
+    {
+        AT[i+j*n] = A[j+i*n];
+    }
+  }
 
   // TODO: Implement the blocking optimization
   /* The size of a block */
-  int s = 22;
+  int s = 21;
   /* The number of blocks */
   int blocks = n / s;
 
