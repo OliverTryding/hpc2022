@@ -13,7 +13,23 @@ LDLIBS = -lrt -Wl,--start-group $(MKLROOT)/lib/intel64/libmkl_intel_lp64.a $(MKL
 
 */
 
+#include <stdlib.h>
+
 const char* dgemm_desc = "Naive, three-loop dgemm.";
+
+double* transpose(double* A, int n)
+{
+  //Making a new array where A is transposed
+  double* AT = (double*) malloc(n*n*sizeof(double));
+  for (int i = 0; i < n; i++) 
+  {
+    for (int j = 0; j < n; j++) 
+    {
+        AT[i+j*n] = A[j+i*n];
+    }
+  }
+  return AT;
+}
 
 /* This routine performs a dgemm operation
  *  C := C + A * B
@@ -21,10 +37,16 @@ const char* dgemm_desc = "Naive, three-loop dgemm.";
  * On exit, A and B maintain their input values. */    
 void square_dgemm (int n, double* A, double* B, double* C)
 {
+  // Transposing A for better spacial locality
+  double* AT = transpose(A,n);
+
   // TODO: Implement the blocking optimization
+  /* The size of a block */
   int s = 22;
+  /* The number of blocks */
   int blocks = n / s;
 
+  /* Three loops giving the boundries of the blocks */
   for (int u = 0; u <= blocks; u++)
   {
     for (int v = 0; v <= blocks; v++)
@@ -32,11 +54,11 @@ void square_dgemm (int n, double* A, double* B, double* C)
       for (int w = 0; w <= blocks; w++)
       {
         int end_u = (u+1) * s;
-        /* For each row i of A */
+        /* For each row i of Aij */
         for (int i = u * s; i<end_u && i<n; ++i)
         {
           int end_v = (v+1) * s;
-          /* For each column j of B */
+          /* For each column j of Bij */
           for (int j = v * s; j<end_v && j<n; ++j)
           {
             int end_w = (w+1) * s;
@@ -44,7 +66,8 @@ void square_dgemm (int n, double* A, double* B, double* C)
             double cij = C[i+j*n];
             for( int k = w * s; k<end_w && k<n; k++ )
             {
-              cij += A[i+k*n] * B[k+j*n];
+              // Changed because of transposition
+              cij += AT[k+i*n] * B[k+j*n];
             }
             C[i+j*n] = cij;
           }
