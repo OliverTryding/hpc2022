@@ -1,4 +1,4 @@
-// #include <omp.h>
+#include <omp.h>
 #include "walltime.h"
 #include <iostream>
 #include <math.h>
@@ -9,15 +9,15 @@
 
 // Example benchmarks
 // 0.008s ~0.8MB
-#define N 100000
+// define N 100000
 // 0.1s ~8MB
 // #define N 1000000
 // 1.1s ~80MB
 // #define N 10000000
 // 13s ~800MB
-// #define N 100000000
+#define N 100000000
 // 127s 16GB
-//#define N 1000000000
+// #define N 1000000000
 #define EPSILON 0.1
 
 using namespace std;
@@ -57,12 +57,42 @@ int main() {
   //   i.  Using reduction pragma
   //   ii. Using  critical pragma
 
+  // time_start = wall_time();
+  // #pragma omp parallel for
+  // for (int iterations = 0; iterations < NUM_ITERATIONS; iterations++) {
+  //   alpha_parallel = 0.0;
+  //   for (int i = 0; i < N; i++) {
+  //     alpha_parallel += a[i] * b[i];
+  //   }
+  // }
+  // time_red = wall_time() - time_start;
+
+  time_start = wall_time();
   for (int iterations = 0; iterations < NUM_ITERATIONS; iterations++) {
     alpha_parallel = 0.0;
+    #pragma omp parallel for reduction(+ : alpha_parallel)
     for (int i = 0; i < N; i++) {
       alpha_parallel += a[i] * b[i];
     }
   }
+  time_red = wall_time() - time_start;
+
+  time_start = wall_time();
+  for (int iterations = 0; iterations < NUM_ITERATIONS; iterations++) {
+    alpha_parallel = 0.0;
+    long double alpha_private = 0.0;
+    long double alpha_list[24];
+    #pragma omp parallel for private(alpha_private)
+      for (int i = 0; i < N; i++) {
+        alpha_private += a[i] * b[i];
+      }
+      alpha_list[omp_get_thread_num()] = alpha_private; 
+    #pragma omp critical
+      for (int i = 0; i < 24; i++) {
+        alpha_parallel += alpha_list[i];
+      }
+  }
+  time_critical = wall_time() - time_start;
 
   if ((fabs(alpha_parallel - alpha) / fabs(alpha_parallel)) > EPSILON) {
     cout << "parallel reduction: " << alpha_parallel << ", serial: " << alpha
