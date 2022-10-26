@@ -1,6 +1,7 @@
 #include "walltime.h"
 #include <iostream>
 #include <random>
+#include <omp.h>
 
 #define VEC_SIZE 1000000000
 #define BINS 16
@@ -39,6 +40,7 @@ int main() {
   time_start = wall_time();
 
   // TODO Parallelize the histogram computation
+  #pragma omp parallel for reduction(+ : dist)
   for (long i = 0; i < VEC_SIZE; ++i) {
     dist[vec[i]]++;
   }
@@ -46,7 +48,7 @@ int main() {
 
   // Write results
   for (int i = 0; i < BINS; ++i) {
-    cout << "dist[" << i << "]=" << dist[i] << endl;
+    //cout << "dist[" << i << "]=" << dist[i] << endl;
   }
   cout << "Time: " << time_end - time_start << " sec" << endl;
 

@@ -42,7 +42,9 @@ int main(int argc, char *argv[]) {
         omp_set_lock(&locka);
         for (i = 0; i < N; i++)
           a[i] = i * DELTA;
+        omp_unset_lock(&locka);
         omp_set_lock(&lockb);
+        omp_set_lock(&locka);
         printf("Thread %d adding a[] to b[]\n", tid);
         for (i = 0; i < N; i++)
           b[i] += a[i];

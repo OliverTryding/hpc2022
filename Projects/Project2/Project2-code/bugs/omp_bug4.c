@@ -10,10 +10,11 @@
 
 int main(int argc, char *argv[]) {
   int nthreads, tid, i, j;
-  double a[N][N];
+  static double a[N][N];
 
 /* Fork a team of threads with explicit variable scoping */
-#pragma omp parallel shared(nthreads) private(i, j, tid, a)
+#pragma omp threadprivate(a)
+#pragma omp parallel shared(nthreads) private(i, j, tid)
   {
 
     /* Obtain/print thread info */

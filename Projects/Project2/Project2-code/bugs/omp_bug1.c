@@ -22,11 +22,9 @@ int main(int argc, char *argv[]) {
 
 #pragma omp parallel for shared(a, b, c, chunk) private(i, tid)                \
     schedule(static, chunk)
-  {
-    tid = omp_get_thread_num();
     for (i = 0; i < N; i++) {
+      tid = omp_get_thread_num();
       c[i] = a[i] + b[i];
       printf("tid= %d i= %d c[i]= %f\n", tid, i, c[i]);
     }
-  } /* end of parallel for construct */
 }

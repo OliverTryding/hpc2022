@@ -9,7 +9,7 @@
 
 // Example benchmarks
 // 0.008s ~0.8MB
-// define N 100000
+// #define N 100000
 // 0.1s ~8MB
 // #define N 1000000
 // 1.1s ~80MB
@@ -47,7 +47,7 @@ int main() {
     }
   }
   time_serial = wall_time() - time_start;
-  cout << "Serial execution time = " << time_serial << " sec" << endl;
+  //cout << "Serial execution time = " << time_serial << " sec" << endl;
 
   long double alpha_parallel = 0;
   double time_red = 0;
@@ -55,17 +55,6 @@ int main() {
 
   //   TODO: Write parallel version (2 ways!)
   //   i.  Using reduction pragma
-  //   ii. Using  critical pragma
-
-  // time_start = wall_time();
-  // #pragma omp parallel for
-  // for (int iterations = 0; iterations < NUM_ITERATIONS; iterations++) {
-  //   alpha_parallel = 0.0;
-  //   for (int i = 0; i < N; i++) {
-  //     alpha_parallel += a[i] * b[i];
-  //   }
-  // }
-  // time_red = wall_time() - time_start;
 
   time_start = wall_time();
   for (int iterations = 0; iterations < NUM_ITERATIONS; iterations++) {
@@ -77,20 +66,30 @@ int main() {
   }
   time_red = wall_time() - time_start;
 
+  if ((fabs(alpha_parallel - alpha) / fabs(alpha_parallel)) > EPSILON) {
+    cout << "parallel reduction: " << alpha_parallel << ", serial: " << alpha
+         << "\n";
+    cerr << "Alpha not yet implemented correctly!\n";
+    exit(1);
+  }
+
+  //   ii. Using  critical pragma
+
+  int num_threads = omp_get_max_threads();
+
   time_start = wall_time();
   for (int iterations = 0; iterations < NUM_ITERATIONS; iterations++) {
     alpha_parallel = 0.0;
     long double alpha_private = 0.0;
-    long double alpha_list[24];
-    #pragma omp parallel for private(alpha_private)
+    #pragma omp parallel private(alpha_private)
+    {
+    #pragma omp for
       for (int i = 0; i < N; i++) {
         alpha_private += a[i] * b[i];
       }
-      alpha_list[omp_get_thread_num()] = alpha_private; 
-    #pragma omp critical
-      for (int i = 0; i < 24; i++) {
-        alpha_parallel += alpha_list[i];
-      }
+      #pragma omp critical
+      alpha_parallel += alpha_private;
+    }
   }
   time_critical = wall_time() - time_start;
 
@@ -100,10 +99,11 @@ int main() {
     cerr << "Alpha not yet implemented correctly!\n";
     exit(1);
   }
-  cout << "Parallel dot product = " << alpha_parallel
-       << " time using reduction method = " << time_red
-       << " sec, time using critical method " << time_critical << " sec"
-       << endl;
+  cout << N << "," << num_threads << "," << time_serial << "," << time_red << "," << time_critical << endl;
+  // cout << "Parallel dot product = " << alpha_parallel
+  //      << " time using reduction method = " << time_red
+  //      << " sec, time using critical method " << time_critical << " sec"
+  //      << endl;
 
   // De-allocate memory
   delete[] a;

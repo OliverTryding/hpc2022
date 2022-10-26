@@ -76,6 +76,6 @@ void print_results(float array[N], int tid, int section) {
     printf("\n");
   } /*** end of critical ***/
 
-#pragma omp barrier
+//#pragma omp barrier
   printf("Thread %d done and synchronized.\n", tid);
 }
