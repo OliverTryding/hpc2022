@@ -67,6 +67,11 @@ double hpc_norm2(Field const& x, const int N)
     double result = 0;
 
     //TODO
+    for (int i = 0; i < N; i++)
+    {
+        result += x[i] * x[i];
+    }
+    
 
     return sqrt(result);
 }
@@ -77,6 +82,10 @@ double hpc_norm2(Field const& x, const int N)
 void hpc_fill(Field& x, const double value, const int N)
 {
     //TODO
+    for (int i = 0; i < N; i++)
+    {
+         x[i] = value;
+    }
 
 }
 
@@ -90,6 +99,10 @@ void hpc_fill(Field& x, const double value, const int N)
 void hpc_axpy(Field& y, const double alpha, Field const& x, const int N)
 {
     //TODO
+    for (int i = 0; i < N; i++)
+    {
+         y[i] = alpha * x[i] + y[i];
+    }
 }
 
 // computes y = x + alpha*(l-r)
@@ -99,6 +112,10 @@ void hpc_add_scaled_diff(Field& y, Field const& x, const double alpha,
     Field const& l, Field const& r, const int N)
 {
     //TODO
+    for (int i = 0; i < N; i++)
+    {
+         y[i] = x[i] + alpha * (l[i] - r[i]);
+    }
 }
 
 // computes y = alpha*(l-r)
@@ -108,6 +125,10 @@ void hpc_scaled_diff(Field& y, const double alpha,
     Field const& l, Field const& r, const int N)
 {
     //TODO
+    for (int i = 0; i < N; i++)
+    {
+         y[i] = alpha * (l[i] - r[i]);
+    }
 }
 
 // computes y := alpha*x
@@ -116,6 +137,10 @@ void hpc_scaled_diff(Field& y, const double alpha,
 void hpc_scale(Field& y, const double alpha, Field const& x, const int N)
 {
     //TODO
+    for (int i = 0; i < N; i++)
+    {
+         y[i] = alpha * x[i];
+    }
 }
 
 // computes linear combination of two vectors y := alpha*x + beta*z
@@ -125,6 +150,10 @@ void hpc_lcomb(Field& y, const double alpha, Field const& x, const double beta,
     Field const& z, const int N)
 {
     //TODO
+    for (int i = 0; i < N; i++)
+    {
+         y[i] = alpha * x[i] + beta * z[i];
+    }
 }
 
 // copy one vector into another y := x
@@ -132,6 +161,10 @@ void hpc_lcomb(Field& y, const double alpha, Field const& x, const double beta,
 void hpc_copy(Field& y, Field const& x, const int N)
 {
     //TODO
+    for (int i = 0; i < N; i++)
+    {
+         y[i] = x[i];
+    }
 }
 
 // conjugate gradient solver

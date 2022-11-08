@@ -40,6 +40,10 @@ void diffusion(const data::Field &s, data::Field &f)
         for (int i=1; i < iend; i++) {
             //TODO
             // f(i,j) = ...
+            f(i,j) = -(4. + alpha)*s(i,j) 
+                        + s(i-1,j) + s(i+1,j) + s(i,j-1) + s(i,j+1)
+                        + alpha*y_old(i,j)
+                        + beta * s(i,j) * (1.0 - s(i,j));
 
         }
     }
@@ -60,6 +64,13 @@ void diffusion(const data::Field &s, data::Field &f)
     {
         int i = 0;
         //TODO
+        for (int j = 1; j < jend; j++)
+        {
+            f(i,j) = -(4. + alpha) * s(i,j)
+                        + s(i-1,j) + s(i,j-1) + s(i,j+1)
+                        + alpha*y_old(i,j) + bndW[j]
+                        + beta * s(i,j) * (1.0 - s(i,j));
+        }
     }
 
     // the north boundary (plus NE and NW corners)
