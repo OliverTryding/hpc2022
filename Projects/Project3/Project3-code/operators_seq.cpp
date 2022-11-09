@@ -6,8 +6,6 @@
 
 // Description: Contains simple operators which can be used on 3d-meshes
 
-#include <omp.h>
-
 #include "data.h"
 #include "operators.h"
 #include "stats.h"
@@ -38,7 +36,6 @@ void diffusion(const data::Field &s, data::Field &f)
     int jend  = nx - 1;
 
     // the interior grid points
-    #pragma omp parallel for collapse(2)
     for (int j=1; j < jend; j++) {
         for (int i=1; i < iend; i++) {
             //TODO
@@ -54,7 +51,6 @@ void diffusion(const data::Field &s, data::Field &f)
     // the east boundary
     {
         int i = nx - 1;
-        #pragma omp parallel for
         for (int j = 1; j < jend; j++)
         {
             f(i,j) = -(4. + alpha) * s(i,j)
@@ -68,7 +64,6 @@ void diffusion(const data::Field &s, data::Field &f)
     {
         int i = 0;
         //TODO
-        #pragma omp parallel for
         for (int j = 1; j < jend; j++)
         {
             f(i,j) = -(4. + alpha) * s(i,j)
