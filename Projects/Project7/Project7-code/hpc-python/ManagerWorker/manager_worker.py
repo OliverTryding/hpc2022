@@ -29,7 +29,33 @@ def manager(comm, tasks):
     ... ToDo ...
     """
 
-    pass
+    size = comm.Get_size()
+
+    tasks_done = []
+
+    for i in range(1, size):
+        comm.isend(tasks[i-1], i, TAG_TASK)
+
+    status = MPI.Status()
+    
+    for task in tasks[size-1:]:
+        tasks_done.append(comm.recv(None, MPI.ANY_SOURCE, TAG_TASK_DONE, status))
+
+        done = status.Get_source()
+
+        comm.isend(task, done, TAG_TASK)
+
+    # wait for tasks to finish
+    tasks_done += MPI.Requests.waitall(requests)
+
+    # signal that all tasks are done
+    for _ in range(1, size):
+        tasks_done.append(comm.recv(None, MPI.ANY_SOURCE, TAG_TASK_DONE, status))
+        comm.isend(TAG_DONE, status.Get_source(), TAG_TASK)
+
+
+
+
 
 def worker(comm):
 
